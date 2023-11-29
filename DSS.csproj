@@ -1,0 +1,19 @@
+<Project Sdk="Godot.NET.Sdk/4.1.1">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="script_templates\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="script_templates\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GoRogue" Version="3.0.0-beta08-debug" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="scripts\Common\" />
+    <Folder Include="scripts\Defs\" />
+  </ItemGroup>
+</Project>
