@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using DSS.Game;
 using GoRogue.MapGeneration;
 using GoRogue.Pathing;
 using SadRogue.Primitives;
@@ -12,7 +13,8 @@ public partial class Test : Node2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		ViewportDemonstration.ExampleCode2();
+		// ViewportDemonstration.ExampleCode2();
+		GD.Print(GameState.Instance);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

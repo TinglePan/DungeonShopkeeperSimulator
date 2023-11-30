@@ -1,6 +1,10 @@
-﻿namespace DSS.Ecs.Components;
+﻿using System;
+using System.Collections.Generic;
+
+namespace DSS.Ecs.Components;
 
 public class ComponentBase
 {
-    public int EntityId;
+    public Guid Id = Guid.NewGuid();
+    public HashSet<Guid> EntityIds = new();
 }
