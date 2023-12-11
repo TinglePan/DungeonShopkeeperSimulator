@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://djdlp8eyrmq8c"]
+
+[ext_resource type="Shader" path="res://shaders/glyph.gdshader" id="1_64olr"]
+
+[resource]
+shader = ExtResource("1_64olr")
+shader_parameter/mapSize = null
+shader_parameter/atlasSize = null
+shader_parameter/tileSize = null
