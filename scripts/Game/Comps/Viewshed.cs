@@ -1,6 +1,6 @@
-﻿namespace DSS.Ecs.Components;
+﻿namespace DSS.Game.Components;
 
-public class Viewshed: ComponentBase
+public record Viewshed
 {
     public int Range;
     public int Angle;

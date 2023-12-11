@@ -2,29 +2,27 @@ using System;
 using DSS.Common;
 using Godot;
 
-namespace DSS.Ecs.Components;
+namespace DSS.Game.Components;
 
-public class Renderable: ComponentBase
+public record Renderable
 {
 }
 
-public class GlyphRenderable : Renderable
+public record GlyphRenderable : Renderable
 {
-	public string Glyph;
-	public string FontName;
+	public char Glyph;
 	public Color FgColor;
 	public Color BgColor;
 	
-	public GlyphRenderable(string glyph, string fontName, Color fgColor, Color bgColor)
+	public GlyphRenderable(char glyph, Color fgColor, Color bgColor)
 	{
 		Glyph = glyph;
-		FontName = fontName;
 		FgColor = fgColor;
 		BgColor = bgColor;
 	}
 }
 
-public class SpriteRenderable : Renderable
+public record SpriteRenderable : Renderable
 {
 	public string SpritePath;
 	public string MaterialName;

@@ -68,4 +68,16 @@ public static class Enums
 		DownRight = 10,
 		SouthEast = DownRight
 	}
+
+	public enum RenderMode
+	{
+		Glyph,
+		TileSet,
+	}
+
+	public enum TileId
+	{
+		Floor,
+		Wall,
+	}
 }

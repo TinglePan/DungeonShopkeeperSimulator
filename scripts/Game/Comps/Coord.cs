@@ -1,7 +1,7 @@
 using System;
-namespace DSS.Ecs.Components;
+namespace DSS.Game.Components;
 
-public class Coord : ComponentBase
+public record Coord
 {
 	public int X;
 	public int Y;
