@@ -1,12 +1,25 @@
 using Godot;
 using System;
-using DSS.Game;
+using System.Dynamic;
 using GoRogue.MapGeneration;
 using GoRogue.Pathing;
+using ImpromptuInterface;
 using SadRogue.Primitives;
 using SadRogue.Primitives.GridViews;
 
 namespace DSS;
+
+public class Comp
+{
+	public int X;
+	public int Y;
+}
+
+public class TestDuckType
+{
+	public Comp A;
+	public int AddRes => A.X + A.Y;
+}
 
 public partial class Test : Node2D
 {
@@ -14,12 +27,25 @@ public partial class Test : Node2D
 	public override void _Ready()
 	{
 		// ViewportDemonstration.ExampleCode2();
-		GD.Print(GameState.Instance);
+		DuckTypeTest.ExampleCode();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	}
+}
+
+public static class DuckTypeTest
+{
+	public static void ExampleCode()
+	{
+		var obj = new
+		{
+			A = new Comp { X = 1, Y = 2 }
+		};
+		var castedObj = obj.ActLike<TestDuckType>();
+		GD.Print(castedObj.AddRes);
 	}
 }
 

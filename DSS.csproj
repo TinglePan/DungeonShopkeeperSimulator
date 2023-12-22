@@ -11,8 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GoRogue" Version="3.0.0-beta08-debug" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="scripts\Common\" />
+    <PackageReference Include="ImpromptuInterface" Version="8.0.4" />
   </ItemGroup>
 </Project>
