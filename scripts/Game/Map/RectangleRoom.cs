@@ -34,7 +34,7 @@ public class RectangleRoom : Room
     public override Vector2I RandomCoordInRoom()
     {
         var tiles = IterTiles().ToList();
-        var index = GameState.Instance.Rand.Next(tiles.Count());
+        var index = Game.Instance.GameState.Rand.Next(tiles.Count());
         return tiles.ElementAtOrDefault(index);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using DSS.Game.DuckTyping.Comps;
 
 namespace DSS.Game.DuckTyping;
@@ -47,16 +48,41 @@ public class DuckObject
         var type = typeof(T);
         if (tag == null)
         {
-            return Comps.TryGetValue(type, out var comp) ? comp as T : null;
+            if (Comps.TryGetValue(type, out var comp))
+            {
+                return comp as T;
+            }
+            foreach (var testType in Comps.Keys)
+            {
+                if (type.IsAssignableFrom(testType))
+                {
+                    return Comps[testType] as T;
+                }
+            }
         }
         else
         {
-            if (!TaggedComps.ContainsKey(type))
+            if (TaggedComps.ContainsKey(type))
             {
-                return null;
+                if (TaggedComps[type].TryGetValue(tag, out var comp))
+                {
+                    return comp as T;
+                }
             }
-            return TaggedComps[type].TryGetValue(tag, out var comp) ? comp as T : null;
+            
+            foreach (var testType in TaggedComps.Keys)
+            {
+                if (type.IsAssignableFrom(testType))
+                {
+                    if (TaggedComps[testType].TryGetValue(tag, out var comp))
+                    {
+                        return comp as T;
+                    }
+                }
+            }
         }
+
+        return null;
     }
     
 }

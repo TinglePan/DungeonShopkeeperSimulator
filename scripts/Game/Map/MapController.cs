@@ -19,23 +19,31 @@ public partial class MapController : Node2D
 
     private TileAtlasDef _tileAtlasDef;
 
-    private static string TexturePathToDefPath(string texturePath)
-    {
-        return $"res://defs/{Path.GetFileNameWithoutExtension(texturePath.GetBaseName())}.json";
-    }
-    
     public void Init(Map map)
     {
         MapRef = map;
         map.OnTileChanged += UpdateTile;
-        DefStore.Instance.Defs.TryGetValue(typeof(TileAtlasDef), out var tileAtlasDefs);
+        TileMapRef.TileSet.TileSize = Constants.TileSize;
+        for (int i = 0; i < TileMapRef.GetLayersCount(); i++)
+        {
+            var layerName = TileMapRef.GetLayerName(i);
+            if (layerName == "Ground")
+            {
+                TileMapRef.SetLayerZIndex(i, (int)Enums.ObjectRenderOrder.Ground);
+            }
+            else if (layerName == "Wall")
+            {
+                TileMapRef.SetLayerZIndex(i, (int)Enums.ObjectRenderOrder.Wall);
+            }
+        }
+        Game.Instance.DefStore.Defs.TryGetValue(typeof(TileAtlasDef), out var tileAtlasDefs);
         if (tileAtlasDefs != null)
         {
             var tileSetAtlasSource = TileMapRef.TileSet.GetSource(0) as TileSetAtlasSource;
             var texturePath = tileSetAtlasSource?.Texture.ResourcePath;
             if (texturePath != null)
             {
-                _tileAtlasDef = DefStore.Instance.GetDef<TileAtlasDef>(TexturePathToDefPath(texturePath));
+                _tileAtlasDef = Game.Instance.DefStore.GetDef<TileAtlasDef>(Utils.TexturePathToDefPath(texturePath));
             }
         }
         UpdateTiles();

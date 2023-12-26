@@ -4,7 +4,7 @@ using System.Linq;
 using DSS.Common;
 using DSS.Game.Actions;
 using DSS.Game.DuckTyping;
-using DSS.Game.DuckTyping.TypedObjects;
+using DSS.Game.DuckTyping.Comps;
 using Godot;
 
 namespace DSS.Game;
@@ -96,13 +96,36 @@ public class Map
             {
                 foreach (var @object in objects.Values)
                 {
-                    if (coord.Equals(OnMapDuckObject.Coord(@object)))
+                    if (coord.Equals(OnMap.GetCoord(@object)))
                     {
                     
                         yield return @object;
                     }
                 }
             }
+        }
+    }
+    
+    public void SpawnObject(DuckObject obj, Vector2I coord, string tag)
+    {
+        var onMapComp = obj.GetComp<OnMap>();
+        if (onMapComp == null)
+        {
+            onMapComp = new OnMap() { Coord = coord, MapId = Id };
+            obj.AddComp(onMapComp);
+        }
+        else
+        {
+            onMapComp.Coord = coord;
+        }
+        if (tag != null)
+        {
+            if (!TaggedObjects.TryGetValue(tag, out var objects))
+            {
+                objects = new Dictionary<Guid, DuckObject>();
+                TaggedObjects[tag] = objects;
+            }
+            objects[obj.Id] = obj;
         }
     }
 
@@ -120,11 +143,11 @@ public class Map
 
     public bool MoveObject(DuckObject obj, Vector2I toCoord)
     {
-        var fromCoord = OnMapDuckObject.Coord(obj);
+        var fromCoord = OnMap.GetCoord(obj);
         var path = Utils.GetLine(fromCoord, toCoord).ToArray();
         if (IsWalkable(obj, path))
         {
-            OnMapDuckObject.Move(obj, toCoord);
+            OnMap.Move(obj, toCoord);
             return true;
         }
 
@@ -134,13 +157,12 @@ public class Map
     public bool IsWalkable(DuckObject walker, Vector2I[] path)
     {
         // TODO: Handle path with length above 2
-        var toCoord = path[-1];
+        var toCoord = path.Last();
         if (toCoord.X < 0 || toCoord.X >= Dimension.X || toCoord.Y < 0 || toCoord.Y >= Dimension.Y)
         {
             return false;
         }
-        var coord = OnMapDuckObject.Coord(walker);
-        var index = CoordToIndex(coord);
+        var index = CoordToIndex(toCoord);
         var res = true;
         res &= WallTiles[index] == 0;
         // TODO: check for objects at toCoord

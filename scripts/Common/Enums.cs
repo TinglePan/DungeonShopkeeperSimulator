@@ -75,6 +75,18 @@ public static class Enums
 
 	public enum TileId
 	{
-		Wall,
+		Floor = 0,
+		Wall = 1,
+		Player = 2,
+	}
+
+	public enum ObjectRenderOrder
+	{
+		Terrain = 0,
+		Ground = 1,
+		Wall = 2,
+		Building = 3,
+		Items = 4,
+		Creature = 5,
 	}
 }

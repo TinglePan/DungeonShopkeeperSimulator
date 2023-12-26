@@ -8,9 +8,6 @@ namespace DSS.Game;
 
 public class DefStore
 {
-    private static DefStore _instance;
-    public static DefStore Instance => _instance ??= new DefStore();
-
     public Dictionary<Type, Dictionary<string, BaseDef>> Defs = new();
 
     public void Init()
@@ -21,8 +18,11 @@ public class DefStore
             AtlasPath = Constants.MonoTileSetAtlasPath,
             TileIdToCoordMap = new Dictionary<Enums.TileId, Vector2I>
             {
+                { Enums.TileId.Floor, new Vector2I(0, 0) },
                 { Enums.TileId.Wall, new Vector2I(2, 0) },
-            }
+                { Enums.TileId.Player, new Vector2I(3, 7) }
+            },
+            TileSize = new Vector2I(8, 8)
         };
         var type = tileAtlasDef.GetType();
         if (!Defs.ContainsKey(type))

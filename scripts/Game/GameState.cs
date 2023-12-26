@@ -5,9 +5,6 @@ namespace DSS.Game;
 
 public class GameState
 {
-    private static GameState _instance;
-    public static GameState Instance => _instance ??= new GameState();
-
     public GameSetting Setting;
     public Random Rand;
     public BaseGameHandler CurrentGameHandler;

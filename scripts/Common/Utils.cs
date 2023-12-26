@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using Godot;
 using SadRogue.Primitives;
@@ -15,4 +16,10 @@ public static class Utils
             yield return new Vector2I(point.X, point.Y);
         }
     }
+    
+    public static string TexturePathToDefPath(string texturePath)
+    {
+        return $"res://defs/{Path.GetFileNameWithoutExtension(texturePath.GetBaseName())}.json";
+    }
+
 }
