@@ -9,7 +9,7 @@ namespace DSS.Game;
 
 public class MapGen
 {
-	public void DungeonMaze(Map map)
+	public void DungeonMaze(Game game, Map map)
 	{
 		var dimension = map.Dimension;
 		var generator = new Generator(dimension.X, dimension.Y);
@@ -31,7 +31,7 @@ public class MapGen
 			}
 			else
 			{
-				map.WallTiles[pos.ToIndex(dimension.X)] = (byte)Enums.TileId.Wall;
+				map.WallTiles[pos.ToIndex(dimension.X)] = (byte)game.DefStore.GetTileId("wall");
 			}
 		}
 

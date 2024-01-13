@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.InteropServices;
 using DSS.Game.DuckTyping.Comps;
@@ -9,80 +10,81 @@ namespace DSS.Game.DuckTyping;
 public class DuckObject
 {
     public Guid Id = Guid.NewGuid();
-    protected Dictionary<Type, BaseComp> Comps = new();
-    protected Dictionary<Type, Dictionary<string, BaseComp>> TaggedComps = new();
+    private Dictionary<Type, Dictionary<string, BaseComp>> _comps = new();
     
-    public void AddComp(BaseComp comp, string tag=null)
+    public void AddComp(BaseComp comp, string tag="")
     {
         var type = comp.GetType();
-        if (tag == null)
-        {
-            Comps.TryAdd(type, comp);
-        }
-        else
-        {
-            if (!TaggedComps.ContainsKey(type))
-            {
-                TaggedComps[type] = new Dictionary<string, BaseComp>();
-            }
-            TaggedComps[type].Add(tag, comp);
-        }
+        tag ??= "";
+        _comps.TryAdd(type, new Dictionary<string, BaseComp>());
+        _comps[type].TryAdd(tag, comp);
     }
     
     public void RemoveComp(BaseComp comp)
     {
         var type = comp.GetType();
-        if (TaggedComps.ContainsKey(type))
+        if (_comps.ContainsKey(type)) 
         {
-            var kvp = TaggedComps[type].FirstOrDefault(kvp => kvp.Value.Equals(comp));
-            TaggedComps[type].Remove(kvp.Key);
-        }
-        else
-        {
-            Comps.Remove(type);
+            var kvp = _comps[type].FirstOrDefault(kvp => kvp.Value.Equals(comp));
+            _comps[type].Remove(kvp.Key);
         }
     }
     
-    public T GetComp<T>(string tag=null) where T: BaseComp
+    public T GetComp<T>(string tag="") where T: BaseComp
     {
         var type = typeof(T);
-        if (tag == null)
+        return GetComp((type, tag)) as T;
+    }
+    
+    public T GetCompOrNew<T>(string tag="") where T: BaseComp, new()
+    {
+        var type = typeof(T);
+        var res =GetComp((type, tag));
+        if (res == null)
         {
-            if (Comps.TryGetValue(type, out var comp))
+            res = new T();
+            AddComp(res, tag);
+        }
+        return res as T;
+    }
+
+    private BaseComp GetComp((Type, string) typeTagPair)
+    {
+        var (type, tag) = typeTagPair;
+        tag ??= "";
+        if (_comps.ContainsKey(type) && _comps[type].TryGetValue(tag, out var res))
+        {
+            return res;
+        }
+        foreach (var (testType, comps) in _comps)
+        {
+            if (type.IsAssignableFrom(testType))
             {
-                return comp as T;
-            }
-            foreach (var testType in Comps.Keys)
-            {
-                if (type.IsAssignableFrom(testType))
-                {
-                    return Comps[testType] as T;
-                }
+                return comps[tag];
             }
         }
-        else
+        foreach (var testType in _comps.Keys)
         {
-            if (TaggedComps.ContainsKey(type))
+            if (type.IsAssignableFrom(testType))
             {
-                if (TaggedComps[type].TryGetValue(tag, out var comp))
+                if (_comps[testType].TryGetValue(tag, out res))
                 {
-                    return comp as T;
-                }
-            }
-            
-            foreach (var testType in TaggedComps.Keys)
-            {
-                if (type.IsAssignableFrom(testType))
-                {
-                    if (TaggedComps[testType].TryGetValue(tag, out var comp))
-                    {
-                        return comp as T;
-                    }
+                    return res;
                 }
             }
         }
 
         return null;
+    }
+
+    public bool CheckComps((Type, string)[] typeTagPairs)
+    {
+        foreach (var pair in typeTagPairs)
+        {
+            if (GetComp(pair) == null) return false;
+        }
+
+        return true;
     }
     
 }

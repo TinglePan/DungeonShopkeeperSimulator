@@ -18,12 +18,57 @@ public class Map
     public byte[] GroundTiles;
     public byte[] WallTiles;
     public Action<Vector2I> OnTileChanged;
+    public Action<DuckObject, Vector2I, Vector2I> OnCreatureMoved;
     
-    public Dictionary<string, Dictionary<Guid, DuckObject>> TaggedObjects { get; } = new();
+    public Dictionary<Enums.DuckObjectTag, Dictionary<Guid, DuckObject>> TaggedObjects { get; } = new();
     
     public List<Room> Rooms { get; } = new();
     
     public int Size => Dimension.X * Dimension.Y;
+    
+    public IEnumerable<Vector2I> Coords {
+        get
+        {
+            for (var y = 0; y < Dimension.Y; y++)
+            {
+                for (var x = 0; x < Dimension.X; x++)
+                {
+                    yield return new Vector2I(x, y);
+                }
+            }
+        }
+    }
+
+    public IEnumerable<DuckObject> Creatures
+    {
+        get
+        {
+            if (TaggedObjects.TryGetValue(Enums.DuckObjectTag.Creature, out var objects))
+            {
+                return objects.Values;
+            }
+            return Enumerable.Empty<DuckObject>();
+        }
+    }
+
+    public DuckObject Player
+    {
+        get
+        {
+            if (TaggedObjects.TryGetValue(Enums.DuckObjectTag.Creature, out var objects))
+            {
+                foreach (var creature in objects.Values)
+                {
+                    if (PlayerControl.IsCurrentlyControlledBy(creature, Enums.InputSource.LocalP1))
+                    {
+                        return creature;
+                    }
+                }
+            }
+            return null;
+        }
+        
+    }
     
     public Map(Vector2I dimension, bool invertY=true)
     {
@@ -88,17 +133,16 @@ public class Map
         return coord.X + coord.Y * Dimension.X;
     }
     
-    public IEnumerable<DuckObject> GetObjectsAt(Vector2I coord, string tag=null)
+    public IEnumerable<DuckObject> GetObjectsAt(Vector2I coord, Enums.DuckObjectTag tag=default)
     {
         foreach (var (objTag, objects) in TaggedObjects)
         {
-            if (tag == null || tag == objTag)
+            if (tag == default || tag == objTag)
             {
                 foreach (var @object in objects.Values)
                 {
                     if (coord.Equals(OnMap.GetCoord(@object)))
                     {
-                    
                         yield return @object;
                     }
                 }
@@ -106,7 +150,25 @@ public class Map
         }
     }
     
-    public void SpawnObject(DuckObject obj, Vector2I coord, string tag)
+    public bool HasObjectAt(Vector2I coord, Enums.DuckObjectTag tag=default)
+    {
+        foreach (var (objTag, objects) in TaggedObjects)
+        {
+            if (tag == default || tag == objTag)
+            {
+                foreach (var @object in objects.Values)
+                {
+                    if (coord.Equals(OnMap.GetCoord(@object)))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    public void SpawnObject(DuckObject obj, Vector2I coord, Enums.DuckObjectTag tag=default)
     {
         var onMapComp = obj.GetComp<OnMap>();
         if (onMapComp == null)
@@ -118,26 +180,23 @@ public class Map
         {
             onMapComp.Coord = coord;
         }
-        if (tag != null)
+        if (!TaggedObjects.TryGetValue(tag, out var objects))
         {
-            if (!TaggedObjects.TryGetValue(tag, out var objects))
-            {
-                objects = new Dictionary<Guid, DuckObject>();
-                TaggedObjects[tag] = objects;
-            }
-            objects[obj.Id] = obj;
+            objects = new Dictionary<Guid, DuckObject>();
+            TaggedObjects[tag] = objects;
         }
+        objects[obj.Id] = obj;
     }
 
-    public BaseAction TryMoveObject(DuckObject obj, Enums.Direction9 dir)
+    public BaseAction TryMoveObject(DuckObject obj, Vector2I toCoord)
     {
-        if (dir == Enums.Direction9.Neutral)
+        if (OnMap.GetCoord(obj) == toCoord)
         {
-            return new StallAction(this, obj);
+            return new StallAction(obj);
         }
         else
         {
-            return new MoveAction(this, obj, dir);
+            return new MoveAction(obj, toCoord);
         }
     }
 
@@ -148,25 +207,53 @@ public class Map
         if (IsWalkable(obj, path))
         {
             OnMap.Move(obj, toCoord);
+            OnCreatureMoved?.Invoke(obj, fromCoord, toCoord);
+            OnTileChanged?.Invoke(fromCoord);
+            OnTileChanged?.Invoke(toCoord);
             return true;
         }
 
         return false;
     }
     
-    public bool IsWalkable(DuckObject walker, Vector2I[] path)
+    public bool IsWalkable(DuckObject walker, Vector2I[] path, bool ignoreCreatures=false)
     {
         // TODO: Handle path with length above 2
         var toCoord = path.Last();
-        if (toCoord.X < 0 || toCoord.X >= Dimension.X || toCoord.Y < 0 || toCoord.Y >= Dimension.Y)
+        if (!IsInBounds(toCoord))
         {
             return false;
         }
         var index = CoordToIndex(toCoord);
-        var res = true;
-        res &= WallTiles[index] == 0;
-        // TODO: check for objects at toCoord
-        // TODO: check for directional passibility
-        return res;
+        if (WallTiles[index] != 0)
+        {
+            // TODO: Handle creature that can pass wall
+            return false;
+        }
+        // TODO: check for directional pass
+        if (!ignoreCreatures)
+        {
+            foreach (var creature in Creatures)
+            {
+                var creatureCoord = OnMap.GetCoord(creature);
+                if (creatureCoord.Equals(toCoord))
+                {
+                    if (Faction.LetPass(walker, creature)) continue;
+                    return false;
+                }
+            }
+        }
+        // TODO: check for buildings at toCoord
+        return true;
+    }
+
+    public bool IsInBounds(Vector2I coord)
+    {
+        return coord.X >= 0 && coord.X < Dimension.X && coord.Y >= 0 && coord.Y < Dimension.Y;
+    }
+
+    public IEnumerable<Vector2I> GetVisibleCoords(Vector2I atCoord, Enums.Direction8 faceDir, int angle, int range)
+    {
+        yield break;
     }
 }

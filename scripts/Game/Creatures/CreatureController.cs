@@ -1,9 +1,12 @@
-﻿using DSS.Common;
+﻿using System;
+using DSS.Common;
 using DSS.Defs;
 using DSS.Game.DuckTyping;
 using DSS.Game.DuckTyping.Comps;
 using Godot;
+using GoRogue.Pathing;
 using ImpromptuInterface;
+using Path = System.IO.Path;
 
 namespace DSS.Game;
 
@@ -15,22 +18,30 @@ public partial class CreatureController: Node2D
     public void Init(DuckObject creature)
     {
         _creature = creature;
-        OnMap.RegisterCoordChangeCallback(creature, OnCoordChanged);
-        if (TileRenderable.CheckDuckType(creature))
+        OnMap.WatchCoordChange(creature, OnCoordChanged);
+        var renderableComp = creature.GetComp<Renderable>();
+        var renderableType = renderableComp.GetType();
+        if (renderableType == typeof(TileRenderable))
         {
             AtlasTexture texture = new AtlasTexture();
             var texturePath = Renderable.GetAtlasPath(creature);
             texture.Atlas = GD.Load<Texture2D>(texturePath);
-            var def = Game.Instance.DefStore.GetDef<TileAtlasDef>(Utils.TexturePathToDefPath(texturePath));
+            var defPath = Utils.TexturePathToDefPath(texturePath);
+            var defId = new DefId() { FilePath = defPath, InFileStrId = Path.GetFileNameWithoutExtension(defPath) };
+            var def = Game.Instance.DefStore.GetDef<TileAtlasDef>(defId);
             var tileCoord = TileRenderable.GetTileCoord(creature, def);
             texture.Region = new Rect2(tileCoord.X * def.TileSize.X, tileCoord.Y * def.TileSize.Y,
                 def.TileSize.X, def.TileSize.Y);
             SpriteRef.Texture = texture;
-        } else if (SpriteRenderable.CheckDuckType(creature))
+        } else if (renderableType == typeof(SpriteRenderable))
         {
             var texturePath = Renderable.GetAtlasPath(creature);
             Texture2D texture = GD.Load<Texture2D>(texturePath);
             SpriteRef.Texture = texture;
+        }
+        else
+        {
+            GD.PrintErr("Unknown renderable type");
         }
         var coord = OnMap.GetCoord(creature);
         Position = coord * Constants.TileSize;

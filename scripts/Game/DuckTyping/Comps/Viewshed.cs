@@ -1,4 +1,8 @@
-﻿namespace DSS.Game.DuckTyping.Comps;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Godot;
+
+namespace DSS.Game.DuckTyping.Comps;
 
 public class Viewshed: BaseComp
 {

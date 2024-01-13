@@ -5,20 +5,16 @@ using Godot;
 
 namespace DSS.Game.Actions;
 
-public class StallAction: BaseAction
+public abstract class ActionToCoord: BaseAction
 {
-    protected DuckObject EntityRef;
     protected Map MapRef;
+    protected DuckObject EntityRef;
+    protected Vector2I TargetCoord;
     
-    public StallAction(DuckObject entity, Map map=null)
+    protected ActionToCoord(DuckObject entity, Vector2I targetCoord, Map map=null)
     {
         EntityRef = entity;
         MapRef = map ?? OnMap.GetMap(entity);
-    }
-    
-    protected override bool TryPerform()
-    {
-        GD.Print("Stall");
-        return true;
+        TargetCoord = targetCoord;
     }
 }

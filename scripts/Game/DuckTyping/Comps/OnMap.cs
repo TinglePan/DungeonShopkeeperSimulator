@@ -9,23 +9,15 @@ public class OnMap: BaseComp
     public Vector2I Coord;
     
     public Action<Vector2I, Vector2I> OnCoordChanged;
-    
-    public static bool CheckDuckType(DuckObject obj)
-    {
-        return obj.GetComp<OnMap>() != null;
-    }
 
     public static void Setup(DuckObject obj, Map map, Vector2I coord)
     {
-        var onMapComp = new OnMap
-        {
-            MapId = map.Id,
-            Coord = coord,
-        };
-        obj.AddComp(onMapComp);
+        var onMapComp = obj.GetCompOrNew<OnMap>();
+        onMapComp.MapId = map.Id;
+        onMapComp.Coord = coord;
     }
     
-    public static void RegisterCoordChangeCallback(DuckObject obj, Action<Vector2I, Vector2I> onCoordChanged)
+    public static void WatchCoordChange(DuckObject obj, Action<Vector2I, Vector2I> onCoordChanged)
     {
         var onMapComp = obj.GetComp<OnMap>();
         onMapComp.OnCoordChanged += onCoordChanged;
@@ -40,11 +32,12 @@ public class OnMap: BaseComp
     public static void Move(DuckObject obj, Vector2I toCoord)
     {
         var onMapComp = obj.GetComp<OnMap>();
+        var fromCoord = onMapComp.Coord;
+        onMapComp.Coord = toCoord;
         if (onMapComp.OnCoordChanged != null)
         {
-            onMapComp.OnCoordChanged.Invoke(onMapComp.Coord, toCoord);
+            onMapComp.OnCoordChanged.Invoke(fromCoord, toCoord);
         }
-        onMapComp.Coord = toCoord;
     }
 
     public static Map GetMap(DuckObject obj)
@@ -52,6 +45,13 @@ public class OnMap: BaseComp
         var onMapComp = obj.GetComp<OnMap>();
         var mapId = onMapComp.MapId;
         return Game.Instance.GameState.Maps.TryGetValue(mapId, out var map) ? map : null;
+    }
+    
+    public static bool IsOnSameMap(DuckObject obj1, DuckObject obj2)
+    {
+        var onMapComp1 = obj1.GetComp<OnMap>();
+        var onMapComp2 = obj2.GetComp<OnMap>();
+        return onMapComp1.MapId == onMapComp2.MapId;
     }
     
 }

@@ -10,6 +10,7 @@ public class GameState
     public BaseGameHandler CurrentGameHandler;
     public Map CurrentMap;
     public Dictionary<Guid, Map> Maps;
+    public int CurrentTurn;
     
     public void Init()
     {
@@ -17,5 +18,15 @@ public class GameState
         Setting.Init();
         Rand = new Random((int)DateTime.Now.Ticks);
         Maps = new Dictionary<Guid, Map>();
+    }
+
+    public void OnPlayerTurnEnd()
+    {
+        
+    }
+    
+    public void OnPublicTurnEnd()
+    {
+        
     }
 }

@@ -8,12 +8,12 @@ public static class Enums
 	{
 		Up = 1,
 		North = Up,
-		Down = 2,
-		South = Down,
-		Left = 4,
-		West = Left,
-		Right = 8,
+		Right = 2,
 		East = Right,
+		Down = 4,
+		South = Down,
+		Left = 8,
+		West = Left,
 	}
 
 	[Flags]
@@ -22,12 +22,12 @@ public static class Enums
 		Neutral = 0,
 		Up = 1,
 		North = Up,
-		Down = 2,
-		South = Down,
-		Left = 4,
-		West = Left,
-		Right = 8,
+		Right = 2,
 		East = Right,
+		Down = 4,
+		South = Down,
+		Left = 8,
+		West = Left,
 	}
 	
 	[Flags]
@@ -35,19 +35,19 @@ public static class Enums
 	{
 		Up = 1,
 		North = Up,
-		Down = 2,
-		South = Down,
-		Left = 4,
-		West = Left,
-		Right = 8,
+		Right = 2,
 		East = Right,
-		UpLeft = 5,
+		Down = 4,
+		South = Down,
+		Left = 8,
+		West = Left,
+		UpLeft = 9,
 		NorthWest = UpLeft,
-		UpRight = 9,
+		UpRight = 3,
 		NorthEast = UpRight,
-		DownLeft = 6,
+		DownLeft = 12,
 		SouthWest = DownLeft,
-		DownRight = 10,
+		DownRight = 6,
 		SouthEast = DownRight
 	}
 
@@ -57,27 +57,44 @@ public static class Enums
 		Neutral = 0,
 		Up = 1,
 		North = Up,
-		Down = 2,
-		South = Down,
-		Left = 4,
-		West = Left,
-		Right = 8,
+		Right = 2,
 		East = Right,
-		UpLeft = 5,
+		Down = 4,
+		South = Down,
+		Left = 8,
+		West = Left,
+		UpLeft = 9,
 		NorthWest = UpLeft,
-		UpRight = 9,
+		UpRight = 3,
 		NorthEast = UpRight,
-		DownLeft = 6,
+		DownLeft = 12,
 		SouthWest = DownLeft,
-		DownRight = 10,
+		DownRight = 6,
 		SouthEast = DownRight
 	}
 
-	public enum TileId
+	// public enum TileId
+	// {
+	// 	Floor,
+	// 	Wall,
+	// 	UpStairs,
+	// 	Player,
+	// 	Adventurer,
+	// }
+
+	[Flags]
+	public enum TileFlag
 	{
-		Floor = 0,
 		Wall = 1,
-		Player = 2,
+		BlockLight = 2,
+		ForbidItems = 4,
+		HideItems = 8,
+	}
+
+	public enum TileType
+	{
+		Terrain,
+		Entity,
 	}
 
 	public enum ObjectRenderOrder
@@ -88,5 +105,34 @@ public static class Enums
 		Building = 3,
 		Items = 4,
 		Creature = 5,
+	}
+	
+	public enum DuckObjectTag
+	{
+		None,
+		Building,
+		Creature,
+		Item,
+	}
+
+	public enum InputSource
+	{
+		None,
+		LocalP1,
+		RemoteP2,
+		RemoteP3,
+		RemoteP4,
+	}
+
+	public enum FactionId
+	{
+		Player,
+		Adventurer,
+		Monster,
+	}
+
+	public enum ActionCode
+	{
+		
 	}
 }

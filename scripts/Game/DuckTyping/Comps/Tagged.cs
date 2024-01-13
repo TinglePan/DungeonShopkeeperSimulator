@@ -3,19 +3,11 @@
 public class Tagged: BaseComp
 {
     public string Tag;
-    
-    public static bool CheckDuckType(DuckObject obj)
-    {
-        return obj.GetComp<Tagged>() != null;
-    }
 
     public static void Setup(DuckObject obj, string tag)
     {
-        var taggedComp = new Tagged
-        {
-            Tag = tag
-        };
-        obj.AddComp(taggedComp);
+        var taggedComp = obj.GetCompOrNew<Tagged>();
+        taggedComp.Tag = tag;
     }
     
     public static string GetTag(DuckObject obj)

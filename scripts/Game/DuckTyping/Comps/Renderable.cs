@@ -9,18 +9,10 @@ public class Renderable: BaseComp
 {
 	public string AtlasPath;
 	
-	public static bool CheckDuckType(DuckObject obj)
-	{
-		return obj.GetComp<Renderable>() != null;
-	}
-	
 	public static void Setup(DuckObject obj, string atlasPath)
 	{
-		var renderableComp = new Renderable
-		{
-			AtlasPath = atlasPath,
-		};
-		obj.AddComp(renderableComp);
+		var renderableComp = obj.GetCompOrNew<Renderable>();
+		renderableComp.AtlasPath = atlasPath;
 	}
 
 	public static string GetAtlasPath(DuckObject obj)
@@ -34,19 +26,11 @@ public class SpriteRenderable : Renderable
 {
 	public string MaterialName;
 	
-	public new static bool CheckDuckType(DuckObject obj)
-	{
-		return obj.GetComp<SpriteRenderable>() != null;
-	}
-	
 	public static void Setup(DuckObject obj, string atlasPath, string materialName)
 	{
-		var renderableComp = new SpriteRenderable
-		{
-			AtlasPath = atlasPath,
-			MaterialName = materialName,
-		};
-		obj.AddComp(renderableComp);
+		var renderableComp = obj.GetCompOrNew<SpriteRenderable>();
+		renderableComp.AtlasPath = atlasPath;
+		renderableComp.MaterialName = materialName;
 	}
 	
 	public static string GetMaterialName(DuckObject obj)
@@ -58,24 +42,16 @@ public class SpriteRenderable : Renderable
 
 public class TileRenderable: Renderable
 {
-	public Enums.TileId TileId;
+	public int TileId;
 	
-	public new static bool CheckDuckType(DuckObject obj)
+	public static void Setup(DuckObject obj, string atlasPath, int tileId)
 	{
-		return obj.GetComp<TileRenderable>() != null;
+		var renderableComp = obj.GetCompOrNew<TileRenderable>();
+		renderableComp.AtlasPath = atlasPath;
+		renderableComp.TileId = tileId;
 	}
 	
-	public static void Setup(DuckObject obj, string atlasPath, Enums.TileId tileId)
-	{
-		var renderableComp = new TileRenderable
-		{
-			AtlasPath = atlasPath,
-			TileId = tileId
-		};
-		obj.AddComp(renderableComp);
-	}
-	
-	public static Enums.TileId GetTileId(DuckObject obj)
+	public static int GetTileId(DuckObject obj)
 	{
 		var renderableComp = obj.GetComp<TileRenderable>();
 		return renderableComp.TileId;

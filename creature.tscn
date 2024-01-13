@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://boa8tw6m7d3gb"]
+
+[ext_resource type="Script" path="res://scripts/Game/Creatures/CreatureController.cs" id="1_rxhpt"]
+
+[node name="Node2D" type="Node2D" node_paths=PackedStringArray("SpriteRef")]
+script = ExtResource("1_rxhpt")
+SpriteRef = NodePath("Sprite2D")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

@@ -7,11 +7,8 @@ namespace DSS.Game;
 
 public abstract class BaseGameHandler
 {
-
     public Game GameRef;
-    public abstract IEnumerable<BaseAction> HandleInput(InputEvent @event);
-    public abstract BaseGameHandler Step(InputEvent @event);
-
+    
     public virtual void OnEnter()
     {
         
@@ -25,5 +22,12 @@ public abstract class BaseGameHandler
     protected BaseGameHandler(Game game)
     {
         GameRef = game;
+    }
+    
+    public void TransitionTo(BaseGameHandler handler)
+    {
+        GameRef.GameState.CurrentGameHandler.OnExit();
+        GameRef.GameState.CurrentGameHandler = handler;
+        handler.OnEnter();
     }
 }

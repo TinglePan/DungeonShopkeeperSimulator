@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using DSS.Common;
 using DSS.Game.DuckTyping;
 using DSS.Game.DuckTyping.Comps;
@@ -6,26 +7,14 @@ using Godot;
 
 namespace DSS.Game.Actions;
 
-public class MoveAction: ActionWithDirection
+public class MoveAction: ActionToCoord
 {
-    protected Map MapRef;
-    protected DuckObject EntityRef;
-    
-    public MoveAction(Map map, DuckObject entity, Enums.Direction9 dir): base(dir)
+    public MoveAction(DuckObject entity, Vector2I targetCoord, Map map=null): base(entity, targetCoord, map)
     {
-        MapRef = map;
-        EntityRef = entity;
     }
     
-    public override bool Execute()
+    protected override bool TryPerform()
     {
-        var onMapComp = EntityRef.GetComp<OnMap>();
-        Debug.Assert(onMapComp != null);
-        Debug.Assert(onMapComp.MapId == MapRef.Id);
-        // TODO: dxy should depend on entity
-        var dxy = MapRef.DirToDxy(Dir);
-        var from = onMapComp.Coord;
-        var to = from + dxy;
-        return MapRef.MoveObject(EntityRef, to);
+        return MapRef.MoveObject(EntityRef, TargetCoord);
     }
 }

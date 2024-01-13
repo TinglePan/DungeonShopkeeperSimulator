@@ -36,15 +36,13 @@ public partial class MapController : Node2D
                 TileMapRef.SetLayerZIndex(i, (int)Enums.ObjectRenderOrder.Wall);
             }
         }
-        Game.Instance.DefStore.Defs.TryGetValue(typeof(TileAtlasDef), out var tileAtlasDefs);
-        if (tileAtlasDefs != null)
+        var tileSetAtlasSource = TileMapRef.TileSet.GetSource(0) as TileSetAtlasSource;
+        var texturePath = tileSetAtlasSource?.Texture.ResourcePath;
+        if (texturePath != null)
         {
-            var tileSetAtlasSource = TileMapRef.TileSet.GetSource(0) as TileSetAtlasSource;
-            var texturePath = tileSetAtlasSource?.Texture.ResourcePath;
-            if (texturePath != null)
-            {
-                _tileAtlasDef = Game.Instance.DefStore.GetDef<TileAtlasDef>(Utils.TexturePathToDefPath(texturePath));
-            }
+            var defPath = Utils.TexturePathToDefPath(texturePath);
+            var defId = new DefId() { FilePath = defPath, InFileStrId = Path.GetFileNameWithoutExtension(defPath)};
+            _tileAtlasDef = Game.Instance.DefStore.GetDef<TileAtlasDef>(defId);
         }
         UpdateTiles();
     }
@@ -68,7 +66,7 @@ public partial class MapController : Node2D
         }
         else
         {
-            TileMapRef.SetCell(WallLayerId, coord, sourceId:WallLayerSourceId, _tileAtlasDef.TileIdToCoordMap[(Enums.TileId)wallTileId]);
+            TileMapRef.SetCell(WallLayerId, coord, sourceId:WallLayerSourceId, _tileAtlasDef.TileIdToCoordMap[(int)wallTileId]);
         }
     }
 
