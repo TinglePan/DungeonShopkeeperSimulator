@@ -29,6 +29,8 @@ public partial class GameManager : Node2D
 		DuckObject player = new DuckObject();
 		TileRenderable.Setup(player, Constants.MonoTileSetAtlasPath, Game.DefStore.GetTileId("player"));
 		Faction.Setup(player, Enums.FactionId.Player);
+		PlayerViewshed.Setup(player, 50, 180);
+		FaceDir.Setup(player, Enums.Direction8.Up);
 		map.SpawnObject(player, new Vector2I(10, 10), Enums.DuckObjectTag.Creature);
 		
 		var playerNode = PlayerPrefab.Instantiate<Node2D>();
@@ -38,8 +40,10 @@ public partial class GameManager : Node2D
 		PlayerController?.Init(player);
 
 		DuckObject testMonster = new DuckObject();
-		TileRenderable.Setup(testMonster, Constants.MonoTileSetAtlasPath, Game.DefStore.GetTileId("adventurer"));
+		TileRenderable.Setup(testMonster, Constants.MonoTileSetAtlasPath, Game.DefStore.GetTileId("adventurer"),
+			hideWhenNotVisible:true);
 		Faction.Setup(testMonster, Enums.FactionId.Adventurer);
+		Viewshed.Setup(testMonster, 5, 360);
 		ChaseAi.Setup(testMonster, player);
 		map.SpawnObject(testMonster, new Vector2I(20, 20), Enums.DuckObjectTag.Creature);
 		

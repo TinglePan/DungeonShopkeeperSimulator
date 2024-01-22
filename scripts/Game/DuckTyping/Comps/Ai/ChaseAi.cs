@@ -15,7 +15,7 @@ public class ChaseAi: BaseAi
     }
     
     protected DuckObject Target;
-    protected Queue<Vector2I> Path = new Queue<Vector2I>();
+    protected Queue<Vector2I> Path = new ();
     protected bool IsOutdated = true;
     protected State CurrentState = State.Idle;
 
@@ -66,17 +66,17 @@ public class ChaseAi: BaseAi
 
     public void TryChase()
     {
-        CalculatePathTo(OnMap.GetCoord(Target));
-        CurrentState = State.Chasing;
-    }
-
-    protected void CalculatePathTo(Vector2I coord)
-    {
         Path.Clear();
-        var pathFinder = PathFinder.GetPathFinderFor(CreatureRef);
-        foreach (var wayPoint in pathFinder.FindPath(OnMap.GetCoord(CreatureRef), coord).Skip(1).SkipLast(1))
+        var map = OnMap.GetMap(CreatureRef);
+        var targetCoord = OnMap.GetCoord(Target);
+        var path = map.NavigateTo(CreatureRef, targetCoord).ToArray();
+        if (path.Count() > 2)
         {
-            Path.Enqueue(wayPoint);
+            foreach (var wayPoint in path.Skip(1).SkipLast(1))
+            {
+                Path.Enqueue(wayPoint);
+            }
+            CurrentState = State.Chasing;
         }
     }
 }

@@ -27,12 +27,17 @@ public partial class Test : Node2D
 	public override void _Ready()
 	{
 		// ViewportDemonstration.ExampleCode2();
-		DuckTypeTest.ExampleCode();
+		// DuckTypeTest.ExampleCode();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	}
+
+	public void Run()
+	{
+		var node = GetNode("/root/");
 	}
 }
 
@@ -72,7 +77,7 @@ public static class ViewportDemonstration
 
 		// Create goal map using the viewport and calculate it.
 		var goalMap = new GoalMap(viewport, Distance.Chebyshev);
-
+			
 		GD.Print("Initial Goal Map:");
 		GD.Print(goalMap.ToString(5));
 

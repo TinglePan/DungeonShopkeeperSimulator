@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://ed04amtj1rij"]
+[gd_scene load_steps=5 format=3 uid="uid://ed04amtj1rij"]
 
 [ext_resource type="Script" path="res://scripts/Game/GameManager.cs" id="1_m5en6"]
+[ext_resource type="Script" path="res://scripts/Test.cs" id="1_rbpks"]
 [ext_resource type="PackedScene" uid="uid://dqd64v0s2kx1m" path="res://map.tscn" id="2_j1t27"]
 [ext_resource type="PackedScene" uid="uid://boa8tw6m7d3gb" path="res://creature.tscn" id="3_dvnhk"]
 
@@ -8,3 +9,15 @@
 script = ExtResource("1_m5en6")
 MapPrefab = ExtResource("2_j1t27")
 PlayerPrefab = ExtResource("3_dvnhk")
+
+[node name="Node2D" type="Node2D" parent="."]
+script = ExtResource("1_rbpks")
+
+[node name="Button" type="Button" parent="Node2D"]
+offset_left = 829.0
+offset_top = 391.0
+offset_right = 870.0
+offset_bottom = 422.0
+text = "Test"
+
+[connection signal="pressed" from="Node2D/Button" to="Node2D" method="Run"]

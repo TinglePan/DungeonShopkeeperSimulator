@@ -1,18 +1,25 @@
 using System;
+using System.Text.Json.Serialization;
 using DSS.Common;
 using DSS.Defs;
 using Godot;
+using Microsoft.VisualBasic;
 
 namespace DSS.Game.DuckTyping.Comps;
 
 public class Renderable: BaseComp
 {
 	public string AtlasPath;
+	public bool HideWhenNotVisible;
 	
-	public static void Setup(DuckObject obj, string atlasPath)
+	[JsonIgnore]
+	public Watched<bool> IsVisible = new Watched<bool>(true);
+	
+	public static void Setup(DuckObject obj, string atlasPath, bool hideWhenNotVisible=false)
 	{
 		var renderableComp = obj.GetCompOrNew<Renderable>();
 		renderableComp.AtlasPath = atlasPath;
+		renderableComp.HideWhenNotVisible = hideWhenNotVisible;
 	}
 
 	public static string GetAtlasPath(DuckObject obj)
@@ -20,16 +27,22 @@ public class Renderable: BaseComp
 		var renderableComp = obj.GetComp<Renderable>();
 		return renderableComp.AtlasPath;
 	}
+	
+	public static void ToggleVisibility(DuckObject obj, bool isVisible)
+	{
+		var renderableComp = obj.GetComp<Renderable>();
+		renderableComp.IsVisible.Value = isVisible;
+	}
 }
 
 public class SpriteRenderable : Renderable
 {
 	public string MaterialName;
 	
-	public static void Setup(DuckObject obj, string atlasPath, string materialName)
+	public static void Setup(DuckObject obj, string atlasPath, string materialName, bool hideWhenNotVisible=false)
 	{
 		var renderableComp = obj.GetCompOrNew<SpriteRenderable>();
-		renderableComp.AtlasPath = atlasPath;
+		Renderable.Setup(obj, atlasPath, hideWhenNotVisible);
 		renderableComp.MaterialName = materialName;
 	}
 	
@@ -44,10 +57,10 @@ public class TileRenderable: Renderable
 {
 	public int TileId;
 	
-	public static void Setup(DuckObject obj, string atlasPath, int tileId)
+	public static void Setup(DuckObject obj, string atlasPath, int tileId, bool hideWhenNotVisible=false)
 	{
 		var renderableComp = obj.GetCompOrNew<TileRenderable>();
-		renderableComp.AtlasPath = atlasPath;
+		Renderable.Setup(obj, atlasPath, hideWhenNotVisible);
 		renderableComp.TileId = tileId;
 	}
 	

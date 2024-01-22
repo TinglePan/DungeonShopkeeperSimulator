@@ -86,15 +86,14 @@ public static class Enums
 	public enum TileFlag
 	{
 		Wall = 1,
-		BlockLight = 2,
-		ForbidItems = 4,
-		HideItems = 8,
+		Occlusion = 2
 	}
 
 	public enum TileType
 	{
 		Terrain,
 		Entity,
+		VisibilityOverlay
 	}
 
 	public enum ObjectRenderOrder
@@ -105,6 +104,7 @@ public static class Enums
 		Building = 3,
 		Items = 4,
 		Creature = 5,
+		VisibilityOverlay = 99,
 	}
 	
 	public enum DuckObjectTag
@@ -134,5 +134,22 @@ public static class Enums
 	public enum ActionCode
 	{
 		
+	}
+
+	[Flags]
+	public enum PathFindingFlag
+	{
+		IsPlayer = 1,
+		CanFly = 2,
+		CanOpenDoor = 4,
+	}
+
+	[Flags]
+	public enum TileVisibility
+	{
+		// NOTE: bit 1 for currently hidden, bit 2 for previously hidden
+		Visible,
+		Revealed = 1,
+		Hidden = 3
 	}
 }

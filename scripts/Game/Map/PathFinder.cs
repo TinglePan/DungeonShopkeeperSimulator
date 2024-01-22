@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DSS.Common;
 using DSS.Game.DuckTyping;
@@ -10,33 +10,18 @@ namespace DSS.Game;
 
 public class PathFinder
 {
-    private static Dictionary<Enums.FactionId, PathFinder> _pathFinders = new();
-    
     private AStar2D _aStar;
     private Map _mapRef;
     private DuckObject _referenceCreature;
     
-    protected PathFinder(DuckObject creature, Map map=null)
+    public PathFinder(Enums.PathFindingFlag setting, Map map)
     {
-        _mapRef = map ?? OnMap.GetMap(creature);
+        _mapRef = map;
         _aStar = new AStar2D();
         _aStar.ReserveSpace(_mapRef.Size);
-        _referenceCreature = creature;
+        _referenceCreature = CreateDummyCreature(setting);
+        Build();
     }
-
-    public static PathFinder GetPathFinderFor(DuckObject creature, Map map=null)
-    {
-        map ??= OnMap.GetMap(creature);
-        var factionId = Faction.GetFactionId(creature);
-        if (!_pathFinders.TryGetValue(factionId, out var pathFinder))
-        {
-            pathFinder = new PathFinder(creature, map);
-            pathFinder.Build();
-            _pathFinders.Add(factionId, pathFinder);
-        }
-        return pathFinder;
-    }
-
 
     public void Build()
     {
@@ -62,11 +47,11 @@ public class PathFinder
                 }
                 var neighborIndex = _mapRef.CoordToIndex(neighbour);
                 // NOTE: we don't check for creatures here, creature check is done by setting point disabled
-                if (_mapRef.IsWalkable(_referenceCreature, new[] { coord, neighbour }, ignoreCreatures:true))
+                if (_mapRef.IsPassable(_referenceCreature, new[] { coord, neighbour }, ignoreCreatures:true))
                 {
                     _aStar.ConnectPoints(index, neighborIndex, false);
                 }
-                if (_mapRef.IsWalkable(_referenceCreature, new[] { neighbour, coord }, ignoreCreatures:true))
+                if (_mapRef.IsPassable(_referenceCreature, new[] { neighbour, coord }, ignoreCreatures:true))
                 {
                     _aStar.ConnectPoints(neighborIndex, index, false);
                 }
@@ -82,11 +67,11 @@ public class PathFinder
             }
         }
 
-        _mapRef.OnCreatureMoved += OnCreatureMoved;
+        _mapRef.OnTileChanged += UpdateTile;
         // TODO: register on creature move callback to adjust the pathfinder
     }
 
-    public IEnumerable<Vector2I> FindPath(Vector2I from, Vector2I to)
+    public IEnumerable<Vector2I> Solve(Vector2I from, Vector2I to)
     {
         var fromIndex = _mapRef.CoordToIndex(from);
         var toIndex = _mapRef.CoordToIndex(to);
@@ -102,17 +87,19 @@ public class PathFinder
         }
     }
     
-    private void OnCreatureMoved(DuckObject creature, Vector2I fromCoord, Vector2I toCoord)
+    private void UpdateTile(Vector2I coord)
     {
-        var fromIndex = _mapRef.CoordToIndex(fromCoord);
-        var toIndex = _mapRef.CoordToIndex(toCoord);
-        if (_aStar.HasPoint(fromIndex) && !_mapRef.HasObjectAt(fromCoord, Enums.DuckObjectTag.Creature) && _aStar.IsPointDisabled(fromIndex))
-        {
-            _aStar.SetPointDisabled(fromIndex, false);
-        }
-        if (_aStar.HasPoint(toIndex))
-        {
-            _aStar.SetPointDisabled(toIndex);
-        }
+        var index = _mapRef.CoordToIndex(coord);
+        Debug.Assert(_aStar.HasPoint(index));
+        _aStar.SetPointDisabled(index, _mapRef.HasObjectAt(coord, Enums.DuckObjectTag.Creature));
+    }
+
+    private DuckObject CreateDummyCreature(Enums.PathFindingFlag setting)
+    {
+        var res = new DuckObject();
+        var faction = (setting & Enums.PathFindingFlag.IsPlayer) != 0 ? Enums.FactionId.Player : Enums.FactionId.Monster;
+        Faction.Setup(res, faction);
+        // TODO: setup dummy creature with setting
+        return res;
     }
 }

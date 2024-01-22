@@ -51,7 +51,7 @@ public class Game
     {
         foreach (var creature in GameState.CurrentMap.Creatures)
         {
-            if (creature.GetComp<BaseAi>() is { } ai)
+            if (creature.GetComp<BaseAi>(ensure:false) is { } ai)
             {
                 ai.Step(ActionManager);
             }

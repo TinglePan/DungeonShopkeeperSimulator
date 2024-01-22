@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
 using DSS.Common;
 using DSS.Defs;
 using Godot;
@@ -26,6 +27,19 @@ public class DefStore
                 { GetTileId("wall"), new Vector2I(2, 0) },
                 { GetTileId("player"), new Vector2I(3, 7) },
                 { GetTileId("adventurer"), new Vector2I(6, 1)}
+            },
+            TileSize = new Vector2I(8, 8)
+        };
+        AddDef(tileAtlasDef);
+        tileAtlasDef = new TileAtlasDef()
+        {
+            Path = Constants.TilemapVisibilityOverlayDefPath,
+            StrId = Constants.TilemapVisibilityOverlayDefStrId,
+            AtlasPath = Constants.TilemapVisibilityOverlayAtlasPath,
+            TileIdToCoordMap = new Dictionary<int, Vector2I>()
+            {
+                { GetTileId("hidden"), new Vector2I(0, 0) },
+                { GetTileId("revealed"), new Vector2I(1, 0) },
             },
             TileSize = new Vector2I(8, 8)
         };
@@ -84,7 +98,7 @@ public class DefStore
                 DisplayName = "Wall",
                 Description = "Wall",
                 Type = Enums.TileType.Terrain,
-                Flags = new [] { Enums.TileFlag.Wall, Enums.TileFlag.BlockLight, Enums.TileFlag.HideItems }
+                Flags = new [] { Enums.TileFlag.Wall, Enums.TileFlag.Occlusion }
             },
             new TileDef()
             {
@@ -101,6 +115,22 @@ public class DefStore
                 DisplayName = "Adventurer",
                 Description = "Adventurer",
                 Type = Enums.TileType.Entity,
+            },
+            new TileDef()
+            {
+                Id = 4,
+                StrId = "hidden",
+                DisplayName = "Hidden",
+                Description = "Hidden",
+                Type = Enums.TileType.VisibilityOverlay,
+            },
+            new TileDef()
+            {
+                Id = 5,
+                StrId = "revealed",
+                DisplayName = "Revealed",
+                Description = "Revealed",
+                Type = Enums.TileType.VisibilityOverlay,
             },
         };
         foreach (var tileDef in tileDefs)

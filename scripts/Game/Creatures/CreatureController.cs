@@ -3,6 +3,7 @@ using DSS.Common;
 using DSS.Defs;
 using DSS.Game.DuckTyping;
 using DSS.Game.DuckTyping.Comps;
+using DSS.Game.DuckTyping.Systems;
 using Godot;
 using GoRogue.Pathing;
 using ImpromptuInterface;
@@ -13,13 +14,27 @@ namespace DSS.Game;
 public partial class CreatureController: Node2D
 {
     [Export] public Sprite2D SpriteRef;
+    [Export] public PackedScene FaceArrowPrefab;
     private DuckObject _creature;
+    private Node2D _faceArrowNodeRef;
 
     public void Init(DuckObject creature)
     {
         _creature = creature;
-        OnMap.WatchCoordChange(creature, OnCoordChanged);
+        OnMap.WatchCoordChange(creature, (fromCoord, toCoord) =>
+        {
+            var tween = GetTree().CreateTween();
+            Vector2 toPos = toCoord * Constants.TileSize + SpriteRef.Texture.GetSize() / 2;
+            tween.TweenProperty(this, "position", toPos, 0.1f);
+            // Position = toCoord * Constants.TileSize;
+            var isVisible = VisibilitySystem.IsPlayerVisible(creature);
+            Renderable.ToggleVisibility(creature, isVisible);
+        });
         var renderableComp = creature.GetComp<Renderable>();
+        renderableComp.IsVisible.OnChanged += (_, value) =>
+        {
+            SpriteRef.Visible = value;
+        };
         var renderableType = renderableComp.GetType();
         if (renderableType == typeof(TileRenderable))
         {
@@ -44,14 +59,23 @@ public partial class CreatureController: Node2D
             GD.PrintErr("Unknown renderable type");
         }
         var coord = OnMap.GetCoord(creature);
-        Position = coord * Constants.TileSize;
-        SpriteRef.Offset = SpriteRef.Texture.GetSize() / 2;
+        Position = coord * Constants.TileSize + SpriteRef.Texture.GetSize() / 2;
+        // SpriteRef.Offset = SpriteRef.Texture.GetSize() / 2;
         SpriteRef.ZIndex = (int)Enums.ObjectRenderOrder.Creature;
+        
+        if (creature.GetComp<FaceDir>(ensure:false) is {} faceDirComp)
+        {
+            _faceArrowNodeRef = FaceArrowPrefab.Instantiate<Node2D>();
+            _faceArrowNodeRef.Name = "FaceArrow";
+            var faceDir = faceDirComp.Dir;
+            _faceArrowNodeRef.Rotation = Utils.DirToAngle(faceDir);
+            FaceDir.WatchDirChange(creature, (fromDir, toDir) =>
+            {
+                var tween = GetTree().CreateTween();
+                var toDeg = Mathf.DegToRad(Utils.DirToAngle(toDir));
+                tween.TweenProperty(_faceArrowNodeRef, "rotation", toDeg, 0.1f);
+            });
+            AddChild(_faceArrowNodeRef);
+        }
     }
-    
-    public void OnCoordChanged(Vector2I fromCoord, Vector2I toCoord)
-    {
-        Position = toCoord * Constants.TileSize;
-    }
-    
 }

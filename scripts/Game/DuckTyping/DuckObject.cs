@@ -30,21 +30,25 @@ public class DuckObject
         }
     }
     
-    public T GetComp<T>(string tag="") where T: BaseComp
+    public T GetComp<T>(string tag="", bool ensure=true) where T: BaseComp
     {
         var type = typeof(T);
-        return GetComp((type, tag)) as T;
+        var res = GetComp((type, tag)) as T;
+        if (ensure && res == null)
+        {
+            throw new Exception($"Component {type} not found on {this}");
+        }
+
+        return res;
     }
     
     public T GetCompOrNew<T>(string tag="") where T: BaseComp, new()
     {
         var type = typeof(T);
-        var res =GetComp((type, tag));
-        if (res == null)
-        {
-            res = new T();
-            AddComp(res, tag);
-        }
+        var res = GetComp((type, tag));
+        if (res != null) return res as T;
+        res = new T();
+        AddComp(res, tag);
         return res as T;
     }
 
@@ -65,26 +69,22 @@ public class DuckObject
         }
         foreach (var testType in _comps.Keys)
         {
-            if (type.IsAssignableFrom(testType))
+            if (!type.IsAssignableFrom(testType)) continue;
+            if (_comps[testType].TryGetValue(tag, out res))
             {
-                if (_comps[testType].TryGetValue(tag, out res))
-                {
-                    return res;
-                }
+                return res;
             }
         }
 
         return null;
     }
 
-    public bool CheckComps((Type, string)[] typeTagPairs)
+    public bool CheckComps(IEnumerable<(Type, string)> typeTagPairs)
     {
         foreach (var pair in typeTagPairs)
         {
             if (GetComp(pair) == null) return false;
         }
-
         return true;
     }
-    
 }

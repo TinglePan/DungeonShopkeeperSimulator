@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using Godot;
 using SadRogue.Primitives;
 
@@ -31,6 +30,22 @@ public static class Utils
                 yield return new Vector2I(x, y);
             }
         }
+    }
+
+    public static int DirToAngle(Enums.Direction8 dir)
+    {
+        return dir switch
+        {
+            Enums.Direction8.North => 0,
+            Enums.Direction8.NorthEast => 45,
+            Enums.Direction8.East => 90,
+            Enums.Direction8.SouthEast => 135,
+            Enums.Direction8.South => 180,
+            Enums.Direction8.SouthWest => 225,
+            Enums.Direction8.West => 270,
+            Enums.Direction8.NorthWest => 315,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
     }
     
     public static string TexturePathToDefPath(string texturePath)

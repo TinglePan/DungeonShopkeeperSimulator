@@ -1,9 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://boa8tw6m7d3gb"]
+[gd_scene load_steps=5 format=3 uid="uid://boa8tw6m7d3gb"]
 
 [ext_resource type="Script" path="res://scripts/Game/Creatures/CreatureController.cs" id="1_rxhpt"]
+[ext_resource type="Texture2D" uid="uid://11qqx4wtnhfk" path="res://textures/minirogue-c64-all.png" id="2_a75s6"]
+[ext_resource type="PackedScene" uid="uid://bdv1ljncdwce7" path="res://face_arrow.tscn" id="2_vmerm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_urvkk"]
+atlas = ExtResource("2_a75s6")
+region = Rect2(64, 64, 8, 8)
 
 [node name="Node2D" type="Node2D" node_paths=PackedStringArray("SpriteRef")]
 script = ExtResource("1_rxhpt")
 SpriteRef = NodePath("Sprite2D")
+FaceArrowPrefab = ExtResource("2_vmerm")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_urvkk")

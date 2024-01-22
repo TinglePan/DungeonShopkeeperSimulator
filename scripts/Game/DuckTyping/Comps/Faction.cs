@@ -25,6 +25,7 @@ public class Faction: BaseComp
     public static bool LetPass(DuckObject obj, DuckObject other)
     {
         var factionComp = obj.GetComp<Faction>();
+        // NOTE: only players can pass through friendly things
         return factionComp.FactionId == Enums.FactionId.Player && !IsHostile(obj, other);
     }
     
