@@ -5,8 +5,8 @@ namespace DSS.Defs;
 public class TileDef: BaseDef
 {
     public int Id;
+    public Enums.TileType Type;
     public string DisplayName;
     public string Description;
-    public Enums.TileType Type;
-    public Enums.TileFlag[] Flags;
+    public Enums.EntityFlag[] Flags;
 }

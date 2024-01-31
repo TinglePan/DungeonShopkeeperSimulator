@@ -2,7 +2,9 @@
 
 namespace DSS.Game.DuckTyping.Comps;
 
-public class BaseComp
+public abstract class BaseComp
 {
+    public Game GameRef;
+    public Entity EntityRef;
     
 }

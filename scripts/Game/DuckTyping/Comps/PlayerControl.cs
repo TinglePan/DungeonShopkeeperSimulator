@@ -8,20 +8,20 @@ public class PlayerControl: BaseComp
     public Enums.InputSource Player;
     public bool IsActivated;
 
-    public static void Setup(DuckObject obj, Enums.InputSource player, bool isActivated)
+    public static void Setup(Game game, Entity obj, Enums.InputSource player, bool isActivated)
     {
         var playerControlComp = obj.GetCompOrNew<PlayerControl>();
+        playerControlComp.GameRef = game;
         playerControlComp.Player = player;
         playerControlComp.IsActivated = isActivated;
     }
 
-    public static bool IsCurrentlyControlledBy(DuckObject obj, Enums.InputSource player=default) 
+    public bool IsCurrentlyControlledBy(Enums.InputSource player=default) 
     {
-        var playerControlComp = obj.GetComp<PlayerControl>();
-        var res = playerControlComp.IsActivated;
+        var res = IsActivated;
         if (player != default)
         {
-            res &= playerControlComp.Player == player;
+            res &= Player == player;
         }
         return res;
     }

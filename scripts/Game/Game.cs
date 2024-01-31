@@ -27,7 +27,7 @@ public class Game
 
     public Map GenLevel()
     {
-        var map = new Map(new Vector2I(40, 40));
+        var map = new Map(this, new Vector2I(40, 40));
         MapGen gen = new MapGen();
         gen.DungeonMaze(this, map);
         GameState.Maps.Add(map.Id, map);

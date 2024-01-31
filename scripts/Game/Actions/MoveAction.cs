@@ -1,20 +1,20 @@
-﻿using System;
-using System.Diagnostics;
-using DSS.Common;
+﻿using DSS.Common;
 using DSS.Game.DuckTyping;
 using DSS.Game.DuckTyping.Comps;
-using Godot;
 
 namespace DSS.Game.Actions;
 
-public class MoveAction: ActionToCoord
+public class MoveAction: BaseDirectionalAction
 {
-    public MoveAction(DuckObject entity, Vector2I targetCoord, Map map=null): base(entity, targetCoord, map)
+    
+    public MoveAction(Game game, Entity entity, Enums.Direction8 dir): base(game, entity, dir)
     {
     }
     
-    protected override bool TryPerform()
+    public override bool TryPerform()
     {
-        return MapRef.MoveObject(EntityRef, TargetCoord);
+        var map = EntityRef.GetComp<OnMap>().Map;
+        map.MoveObject(EntityRef, Dir);
+        return true;
     }
 }

@@ -20,7 +20,6 @@ public partial class MapController : Node2D
     public Map MapRef;
 
     private TileAtlasDef[] _tileAtlasDefs;
-    private DefStore _defStoreRef => Game.Instance.DefStore;
 
     public void Init(Map map)
     {
@@ -33,15 +32,15 @@ public partial class MapController : Node2D
             var layerName = TileMapRef.GetLayerName(i);
             if (layerName == "Ground")
             {
-                TileMapRef.SetLayerZIndex(i, (int)Enums.ObjectRenderOrder.Ground);
+                TileMapRef.SetLayerZIndex(i, (int)Enums.EntityRenderOrder.Ground);
             }
             else if (layerName == "Wall")
             {
-                TileMapRef.SetLayerZIndex(i, (int)Enums.ObjectRenderOrder.Wall);
+                TileMapRef.SetLayerZIndex(i, (int)Enums.EntityRenderOrder.Wall);
             }
             else if (layerName == "VisibilityOverlay")
             {
-                TileMapRef.SetLayerZIndex(i, (int)Enums.ObjectRenderOrder.VisibilityOverlay);
+                TileMapRef.SetLayerZIndex(i, (int)Enums.EntityRenderOrder.Overlay);
             }
             else
             {
@@ -76,17 +75,13 @@ public partial class MapController : Node2D
     public void UpdateTile(Vector2I coord)
     {
         var index = MapRef.CoordToIndex(coord);
-        var playerTileVisibility = MapRef.PlayerTileVisibilities[index];
-        var overlayTileId = playerTileVisibility switch
-        {
-            (byte)Enums.TileVisibility.Revealed => _defStoreRef.GetTileId("revealed"),
-            (byte)Enums.TileVisibility.Hidden => _defStoreRef.GetTileId("hidden"),
-            _ => 0
-        };
+        
+        var overlayTileId = MapRef.VisibleTiles[index] ? 0 : (MapRef.ExploredTiles[index] ? Game.Instance.DefStore.GetTileId("explored") : Game.Instance.DefStore.GetTileId("covered"));
         var wallTileId = MapRef.WallTiles[index];
         if (wallTileId == 0)
         {
             ClearCell(WallLayerId, coord);
+            
         }
         else
         {

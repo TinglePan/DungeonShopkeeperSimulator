@@ -1,4 +1,5 @@
 using DSS.Common;
+using DSS.Game.DuckTyping;
 using Godot;
 using GoRogue.MapGeneration;
 using GoRogue.MapGeneration.ContextComponents;
@@ -25,13 +26,9 @@ public class MapGen
 		var rooms = generator.Context.GetFirst<ItemList<Rectangle>>("Rooms");
 		foreach (var pos in wallFloorValues.Positions())
 		{
-			if (wallFloorValues[pos])
+			if (!wallFloorValues[pos])
 			{
-				map.WallTiles[pos.ToIndex(dimension.X)] = 0;
-			}
-			else
-			{
-				map.WallTiles[pos.ToIndex(dimension.X)] = (byte)game.DefStore.GetTileId("wall");
+				map.SpawnObject(EntityFactory.CreateWall(game, Constants.MonoTileSetAtlasPath), new Vector2I(pos.X, pos.Y), Constants.EntityTagWall);
 			}
 		}
 

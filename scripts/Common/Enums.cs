@@ -73,46 +73,15 @@ public static class Enums
 		SouthEast = DownRight
 	}
 
-	// public enum TileId
-	// {
-	// 	Floor,
-	// 	Wall,
-	// 	UpStairs,
-	// 	Player,
-	// 	Adventurer,
-	// }
-
-	[Flags]
-	public enum TileFlag
-	{
-		Wall = 1,
-		Occlusion = 2
-	}
-
-	public enum TileType
-	{
-		Terrain,
-		Entity,
-		VisibilityOverlay
-	}
-
-	public enum ObjectRenderOrder
+	public enum EntityRenderOrder
 	{
 		Terrain = 0,
 		Ground = 1,
 		Wall = 2,
-		Building = 3,
+		Furniture = 3,
 		Items = 4,
 		Creature = 5,
-		VisibilityOverlay = 99,
-	}
-	
-	public enum DuckObjectTag
-	{
-		None,
-		Building,
-		Creature,
-		Item,
+		Overlay = 99,
 	}
 
 	public enum InputSource
@@ -139,17 +108,43 @@ public static class Enums
 	[Flags]
 	public enum PathFindingFlag
 	{
+		None = 0,
 		IsPlayer = 1,
 		CanFly = 2,
 		CanOpenDoor = 4,
+		CanBreakObstacle = 8,
 	}
 
 	[Flags]
-	public enum TileVisibility
+	public enum ViewFlag
 	{
-		// NOTE: bit 1 for currently hidden, bit 2 for previously hidden
-		Visible,
-		Revealed = 1,
-		Hidden = 3
+		None = 0,
+		XRay = 1,
+	}
+
+	public enum TileType
+	{
+		Terrain,
+		Wall,
+		Furniture,
+		Creature,
+		Overlay
+	}
+
+	[Flags]
+	public enum EntityFlag
+	{
+		Occlusion = 1,
+		Dynamic = 2,
+	}
+
+	public enum CollisionLayer
+	{
+		Wall,
+		Water,
+		Furniture,
+		FurnitureObstacle,
+		HostileCreature,
+		FriendlyCreature,
 	}
 }

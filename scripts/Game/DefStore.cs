@@ -9,8 +9,9 @@ namespace DSS.Game;
 
 public class DefStore
 {
-    public Dictionary<Type, Dictionary<DefId, BaseDef>> Defs = new ();
-    protected Dictionary<string, int> TileIdMap = new (); 
+    public Dictionary<Type, Dictionary<DefId, BaseDef>> Defs = new();
+    protected Dictionary<string, int> TileIdMap = new();
+    protected Dictionary<int, string> TileStrIdMap = new();
 
     public void Init()
     {
@@ -38,8 +39,8 @@ public class DefStore
             AtlasPath = Constants.TilemapVisibilityOverlayAtlasPath,
             TileIdToCoordMap = new Dictionary<int, Vector2I>()
             {
-                { GetTileId("hidden"), new Vector2I(0, 0) },
-                { GetTileId("revealed"), new Vector2I(1, 0) },
+                { GetTileId("covered"), new Vector2I(0, 0) },
+                { GetTileId("explored"), new Vector2I(1, 0) },
             },
             TileSize = new Vector2I(8, 8)
         };
@@ -68,6 +69,9 @@ public class DefStore
         return 0;
     }
 
+    public TileDef GetTileDef(int tileId) => GetDef<TileDef>(new DefId
+        { FilePath = Constants.TileDefPath, InFileStrId = TileStrIdMap[tileId] });
+
     protected void AddDef<T>(T def) where T : BaseDef
     {
         var type = typeof(T);
@@ -85,58 +89,65 @@ public class DefStore
         {
             new TileDef()
             {
+                Path = Constants.TileDefPath,
                 Id = 0,
+                Type = Enums.TileType.Terrain,
                 StrId = "floor",
                 DisplayName = "Floor",
                 Description = "Floor",
-                Type = Enums.TileType.Terrain,
             },
             new TileDef()
             {
+                Path = Constants.TileDefPath,
                 Id = 1,
+                Type = Enums.TileType.Wall,
                 StrId = "wall",
                 DisplayName = "Wall",
                 Description = "Wall",
-                Type = Enums.TileType.Terrain,
-                Flags = new [] { Enums.TileFlag.Wall, Enums.TileFlag.Occlusion }
+                Flags = new [] { Enums.EntityFlag.Occlusion }
             },
             new TileDef()
             {
+                Path = Constants.TileDefPath,
                 Id = 2,
+                Type = Enums.TileType.Creature,
                 StrId = "player",
                 DisplayName = "Player",
                 Description = "Player",
-                Type = Enums.TileType.Entity,
             },
             new TileDef()
             {
+                Path = Constants.TileDefPath,
                 Id = 3,
+                Type = Enums.TileType.Creature,
                 StrId = "adventurer",
                 DisplayName = "Adventurer",
                 Description = "Adventurer",
-                Type = Enums.TileType.Entity,
             },
             new TileDef()
             {
+                Path = Constants.TileDefPath,
                 Id = 4,
-                StrId = "hidden",
-                DisplayName = "Hidden",
-                Description = "Hidden",
-                Type = Enums.TileType.VisibilityOverlay,
+                Type = Enums.TileType.Overlay,
+                StrId = "covered",
+                DisplayName = "Covered",
+                Description = "Covered",
             },
             new TileDef()
             {
+                Path = Constants.TileDefPath,
                 Id = 5,
-                StrId = "revealed",
-                DisplayName = "Revealed",
-                Description = "Revealed",
-                Type = Enums.TileType.VisibilityOverlay,
+                Type = Enums.TileType.Overlay,
+                StrId = "explored",
+                DisplayName = "Explored",
+                Description = "Explored",
             },
         };
         foreach (var tileDef in tileDefs)
         {
             AddDef(tileDef);
             TileIdMap.Add(tileDef.StrId, tileDef.Id);
+            TileStrIdMap.Add(tileDef.Id, tileDef.StrId);
         }
     }
 

@@ -8,30 +8,17 @@ public class Faction: BaseComp
 {
     public Enums.FactionId FactionId;
 
-    public static void Setup(DuckObject obj, Enums.FactionId factionId)
+    public static void Setup(Game game, Entity obj, Enums.FactionId factionId)
     {
         var factionComp = obj.GetCompOrNew<Faction>();
+        factionComp.GameRef = game;
+        factionComp.EntityRef = obj;
         factionComp.FactionId = factionId;
     }
 
-    public static bool IsHostile(DuckObject obj, DuckObject other)
+    public bool IsHostile(Faction other)
     {
-        var factionComp = obj.GetComp<Faction>();
-        var otherFactionComp = other.GetComp<Faction>();
         // TODO: add faction relations
-        return factionComp.FactionId != otherFactionComp.FactionId;
-    }
-
-    public static bool LetPass(DuckObject obj, DuckObject other)
-    {
-        var factionComp = obj.GetComp<Faction>();
-        // NOTE: only players can pass through friendly things
-        return factionComp.FactionId == Enums.FactionId.Player && !IsHostile(obj, other);
-    }
-    
-    public static Enums.FactionId GetFactionId(DuckObject obj)
-    {
-        var factionComp = obj.GetComp<Faction>();
-        return factionComp.FactionId;
+        return FactionId != other.FactionId;
     }
 }

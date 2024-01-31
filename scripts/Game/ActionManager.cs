@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Metadata;
 using DSS.Game.Actions;
 
@@ -16,17 +17,14 @@ public class ActionManager
     {
         GameRef = game;
     }
-    
-    public bool Perform(BaseAction action, Action onSuccess=null, Action onFailure=null)
+
+    public bool HasRegistered(BaseAction action)
     {
-        action.OnSuccess = onSuccess;
-        action.OnFailure = onFailure;
-        action.Perform();
-        RecordHistory(action);
-        return action.Result;
+        if (!ActionHistory.ContainsKey(GameRef.GameState.CurrentTurn)) return false;
+        return ActionHistory[GameRef.GameState.CurrentTurn]?.Contains(action) ?? false;
     }
     
-    protected void RecordHistory(BaseAction action)
+    public void Register(BaseAction action)
     {
         var currentTurn = GameRef.GameState.CurrentTurn;
         if (!RecordedTurnIds.Contains(currentTurn))

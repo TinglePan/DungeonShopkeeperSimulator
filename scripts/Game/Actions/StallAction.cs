@@ -7,16 +7,12 @@ namespace DSS.Game.Actions;
 
 public class StallAction: BaseAction
 {
-    protected DuckObject EntityRef;
-    protected Map MapRef;
     
-    public StallAction(DuckObject entity, Map map=null)
+    public StallAction(Game game, Entity entity): base(game, entity)
     {
-        EntityRef = entity;
-        MapRef = map ?? OnMap.GetMap(entity);
     }
     
-    protected override bool TryPerform()
+    public override bool TryPerform()
     {
         GD.Print("Stall");
         return true;

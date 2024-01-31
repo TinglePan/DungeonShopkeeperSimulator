@@ -23,6 +23,7 @@ public class TestDuckType
 
 public partial class Test : Node2D
 {
+	int? _testObj;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -37,7 +38,8 @@ public partial class Test : Node2D
 
 	public void Run()
 	{
-		var node = GetNode("/root/");
+		// var node = GetNode("/root/");
+		GD.Print($"{Mathf.Atan2(4, 3)}");
 	}
 }
 

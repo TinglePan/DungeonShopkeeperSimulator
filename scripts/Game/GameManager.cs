@@ -26,12 +26,13 @@ public partial class GameManager : Node2D
 		MapController = mapNode as MapController;
 		MapController?.Init(map);
 
-		DuckObject player = new DuckObject();
-		TileRenderable.Setup(player, Constants.MonoTileSetAtlasPath, Game.DefStore.GetTileId("player"));
-		Faction.Setup(player, Enums.FactionId.Player);
-		PlayerViewshed.Setup(player, 50, 180);
-		FaceDir.Setup(player, Enums.Direction8.Up);
-		map.SpawnObject(player, new Vector2I(10, 10), Enums.DuckObjectTag.Creature);
+
+		Entity player = EntityFactory.CreatePlayer(Game, Constants.MonoTileSetAtlasPath);
+		Faction.Setup(Game, player, Enums.FactionId.Player);
+		Viewshed.Setup(Game, player, 10, 180);
+		FaceDir.Setup(Game, player, Enums.Direction8.Up);
+		PlayerControl.Setup(Game, player, Enums.InputSource.LocalP1, true);
+		map.SpawnObject(player, new Vector2I(10, 10), Constants.EntityTagCreature);
 		
 		var playerNode = PlayerPrefab.Instantiate<Node2D>();
 		playerNode.Name = "Player";
@@ -39,13 +40,11 @@ public partial class GameManager : Node2D
 		PlayerController = playerNode as CreatureController;
 		PlayerController?.Init(player);
 
-		DuckObject testMonster = new DuckObject();
-		TileRenderable.Setup(testMonster, Constants.MonoTileSetAtlasPath, Game.DefStore.GetTileId("adventurer"),
-			hideWhenNotVisible:true);
-		Faction.Setup(testMonster, Enums.FactionId.Adventurer);
-		Viewshed.Setup(testMonster, 5, 360);
-		ChaseAi.Setup(testMonster, player);
-		map.SpawnObject(testMonster, new Vector2I(20, 20), Enums.DuckObjectTag.Creature);
+		Entity testMonster = EntityFactory.CreateAdventurer(Game, Constants.MonoTileSetAtlasPath);
+		Faction.Setup(Game, testMonster, Enums.FactionId.Adventurer);
+		Viewshed.Setup(Game, testMonster, 5, 360);
+		ChaseAi.Setup(Game, testMonster, player);
+		map.SpawnObject(testMonster, new Vector2I(11, 10), Constants.EntityTagCreature);
 		
 		var testMonsterNode = PlayerPrefab.Instantiate<Node2D>();
 		testMonsterNode.Name = "Adventurer";
@@ -54,7 +53,7 @@ public partial class GameManager : Node2D
 		testMonsterController?.Init(testMonster);
 		
 		
-		Game.GameState.CurrentGameHandler = new MapExploreHandler(Game, player);
+		Game.GameState.CurrentGameHandler = new MapExploreHandler(Game, map);
 		Game.GameState.CurrentGameHandler.OnEnter();
 	}
 

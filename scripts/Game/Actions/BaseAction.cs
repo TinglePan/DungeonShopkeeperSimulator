@@ -1,26 +1,55 @@
 ﻿using System;
 using System.Linq.Expressions;
+using DSS.Game.DuckTyping;
+using Godot;
 
 namespace DSS.Game.Actions;
 
 public abstract class BaseAction
 {
+    protected Guid Id;
+    protected Game GameRef;
+    public Entity EntityRef;
     public Action OnSuccess;
     public Action OnFailure;
-    public bool Result;
+    public bool? Result;
     
-    public void Perform()
+    protected BaseAction(Game game, Entity entity, Action onSuccess = null, Action onFailure = null)
     {
-        Result = TryPerform();
-        if (Result)
+        Id = Guid.NewGuid();
+        GameRef = game;
+        EntityRef = entity;
+        OnSuccess = onSuccess;
+        OnFailure = onFailure;
+        Result = null;
+    }
+    
+    public bool Perform()
+    {
+        if (!GameRef.ActionManager.HasRegistered(this))
         {
-            OnSuccess?.Invoke();
+            GameRef.ActionManager.Register(this);
+        }
+        Result = TryPerform();
+        if (Result.HasValue)
+        {
+            if (Result.Value)
+            {
+                OnSuccess?.Invoke();
+            }
+            else
+            {
+                OnFailure?.Invoke();
+            }
+
+            return Result.Value;
         }
         else
         {
-            OnFailure?.Invoke();
+            GD.PrintErr(this, "Perform failed");
+            return false;
         }
     }
     
-    protected abstract bool TryPerform();
+    public abstract bool TryPerform();
 }

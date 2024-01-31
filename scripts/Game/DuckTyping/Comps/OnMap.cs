@@ -1,57 +1,38 @@
 ﻿using System;
+using DSS.Common;
 using Godot;
 
 namespace DSS.Game.DuckTyping.Comps;
 
 public class OnMap: BaseComp
 {
-    public Guid MapId;
-    public Vector2I Coord;
-    
-    public Action<Vector2I, Vector2I> OnCoordChanged;
+    public Map Map;
+    public Watched<Vector2I> Coord = new (default);
 
-    public static void Setup(DuckObject obj, Map map, Vector2I coord)
+    public static void Setup(Game game, Entity obj, Map map, Vector2I coord)
     {
         var onMapComp = obj.GetCompOrNew<OnMap>();
-        onMapComp.MapId = map.Id;
-        onMapComp.Coord = coord;
-    }
-    
-    public static void WatchCoordChange(DuckObject obj, Action<Vector2I, Vector2I> onCoordChanged)
-    {
-        var onMapComp = obj.GetComp<OnMap>();
-        onMapComp.OnCoordChanged += onCoordChanged;
-    }
-    
-    public static Vector2I GetCoord(DuckObject obj)
-    {
-        var onMapComp = obj.GetComp<OnMap>();
-        return onMapComp.Coord;
+        onMapComp.GameRef = game;
+        onMapComp.EntityRef = obj;
+        onMapComp.Map = map;
+        onMapComp.Coord.Value = coord;
     }
 
-    public static void Move(DuckObject obj, Vector2I toCoord)
+    public void Move(Enums.Direction8 dir)
     {
-        var onMapComp = obj.GetComp<OnMap>();
-        var fromCoord = onMapComp.Coord;
-        onMapComp.Coord = toCoord;
-        if (onMapComp.OnCoordChanged != null)
+        var toCoord = Coord.Value + Utils.DirToDxy((Enums.Direction9)dir);
+        Move(toCoord);
+    }
+
+    public void Move(Vector2I toCoord)
+    {
+        if (!Utils.IsAdjacent(Coord.Value, toCoord))
         {
-            onMapComp.OnCoordChanged.Invoke(fromCoord, toCoord);
+            GD.PrintErr("Trying to move to non-adjacent tile, should use Teleport");
+        }
+        else
+        {
+            Coord.Value = toCoord;
         }
     }
-
-    public static Map GetMap(DuckObject obj)
-    {
-        var onMapComp = obj.GetComp<OnMap>();
-        var mapId = onMapComp.MapId;
-        return Game.Instance.GameState.Maps.TryGetValue(mapId, out var map) ? map : null;
-    }
-    
-    public static bool IsOnSameMap(DuckObject obj1, DuckObject obj2)
-    {
-        var onMapComp1 = obj1.GetComp<OnMap>();
-        var onMapComp2 = obj2.GetComp<OnMap>();
-        return onMapComp1.MapId == onMapComp2.MapId;
-    }
-    
 }

@@ -10,18 +10,18 @@ namespace DSS.Game;
 
 public class MapExploreHandler: BaseGameHandler
 {
-    private DuckObject _player;
+    private Map _map;
     
-    public MapExploreHandler(Game game, DuckObject player) : base(game)
+    public MapExploreHandler(Game game, Map map) : base(game)
     {
-        _player = player;
+        _map = map;
     }
 
     public override void OnEnter()
     {
         base.OnEnter();
-        Game.Instance.InputManager.OnDirectionInput += OnDirectionInput;
-        Game.Instance.InputManager.OnHoldDirectionInput += OnDirectionInput;
+        GameRef.InputManager.OnDirectionInput += OnDirectionInput;
+        GameRef.InputManager.OnHoldDirectionInput += OnDirectionInput;
     }
 
     public override void OnExit()
@@ -31,11 +31,16 @@ public class MapExploreHandler: BaseGameHandler
 
     public void OnDirectionInput(Enums.Direction9 dir)
     {
-        var map = OnMap.GetMap(_player);
-        var dxy = map.DirToDxy(dir);
-        var targetCoord = OnMap.GetCoord(_player) + dxy;
-        var action = map.TryMoveObject(_player, targetCoord);
+        
+        if (dir == Enums.Direction9.Neutral)
+        {
+            new StallAction(GameRef, _map.PlayerControllingCreature).Perform();
+        }
+        else
+        {
+            new BumpAction(GameRef, _map.PlayerControllingCreature, (Enums.Direction8)dir).Perform();
+        }
         // TODO: Action point based turn change
-        GameRef.ActionManager.Perform(action, onSuccess: GameRef.PlayerTurnEnd);
+        GameRef.PlayerTurnEnd();
     }
 }

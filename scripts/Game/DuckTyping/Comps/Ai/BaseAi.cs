@@ -6,12 +6,11 @@ namespace DSS.Game.DuckTyping.Comps.Ai;
 
 public abstract class BaseAi: BaseComp
 {
-    protected DuckObject CreatureRef;
-
-    protected static void Setup(DuckObject obj)
+    protected static void Setup(Game game, Entity obj)
     {
         var aiComp = obj.GetCompOrNew<ChaseAi>();
-        aiComp.CreatureRef = obj;
+        aiComp.GameRef = game;
+        aiComp.EntityRef = obj;
     }
 
     public abstract void Step(ActionManager actionManager);

@@ -7,11 +7,11 @@ using DSS.Game.DuckTyping.Comps;
 
 namespace DSS.Game.DuckTyping;
 
-public class DuckObject
+public class Entity: IEquatable<Entity>
 {
     public Guid Id = Guid.NewGuid();
     private Dictionary<Type, Dictionary<string, BaseComp>> _comps = new();
-    
+
     public void AddComp(BaseComp comp, string tag="")
     {
         var type = comp.GetType();
@@ -51,6 +51,16 @@ public class DuckObject
         AddComp(res, tag);
         return res as T;
     }
+    
+    public bool HasComp<T>(string tag="", bool precise=false) where T: BaseComp
+    {
+        var type = typeof(T);
+        if (precise)
+        {
+            return _comps.ContainsKey(type) && _comps[type].ContainsKey(tag);
+        }
+        return GetComp((type, tag)) != null;
+    }
 
     private BaseComp GetComp((Type, string) typeTagPair)
     {
@@ -86,5 +96,10 @@ public class DuckObject
             if (GetComp(pair) == null) return false;
         }
         return true;
+    }
+
+    public bool Equals(Entity other)
+    {
+        return Id.Equals(other?.Id);
     }
 }

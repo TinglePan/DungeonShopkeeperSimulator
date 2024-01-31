@@ -4,15 +4,11 @@ public class Tagged: BaseComp
 {
     public string Tag;
 
-    public static void Setup(DuckObject obj, string tag)
+    public static void Setup(Game game, Entity obj, string tag)
     {
         var taggedComp = obj.GetCompOrNew<Tagged>();
+        taggedComp.GameRef = game;
+        taggedComp.EntityRef = obj;
         taggedComp.Tag = tag;
-    }
-    
-    public static string GetTag(DuckObject obj)
-    {
-        var taggedComp = obj.GetComp<Tagged>();
-        return taggedComp.Tag;
     }
 }

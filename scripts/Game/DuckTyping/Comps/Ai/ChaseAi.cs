@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DSS.Common;
 using DSS.Game.Actions;
 using Godot;
 
@@ -14,19 +15,18 @@ public class ChaseAi: BaseAi
         Chasing,
     }
     
-    protected DuckObject Target;
+    protected Entity Target;
     protected Queue<Vector2I> Path = new ();
     protected bool IsOutdated = true;
     protected State CurrentState = State.Idle;
 
-    public static void Setup(DuckObject obj, DuckObject target)
+    public static void Setup(Game game, Entity obj, Entity target)
     {
-        BaseAi.Setup(obj);
         var aiComp = obj.GetCompOrNew<ChaseAi>();
+        BaseAi.Setup(game, obj);
         aiComp.Target = target;
-        // OnMap.WatchCoordChange(target, (_, _) => aiComp.TryChase());
         // NOTE: need to postpone TryChase() until map info is updated
-        OnMap.WatchCoordChange(target, (_, _) => aiComp.IsOutdated = true);
+        target.GetComp<OnMap>().Coord.OnChanged += (_, _) => aiComp.IsOutdated = true;
     }
 
     public override void Step(ActionManager actionManager)
@@ -37,13 +37,14 @@ public class ChaseAi: BaseAi
                 TryChase();
                 break;
             case State.Chasing:
-                if (!OnMap.IsOnSameMap(CreatureRef, Target))
+                var entityOnMapComp = EntityRef.GetComp<OnMap>();
+                var targetOnMapComp = Target.GetComp<OnMap>();
+                if (!entityOnMapComp.Map.Equals(targetOnMapComp.Map))
                 {
                     CurrentState = State.Idle;
                     return;
                 }
-                var targetCoord = OnMap.GetCoord(Target);
-                if (OnMap.GetCoord(CreatureRef) == targetCoord)
+                if (entityOnMapComp.Coord.Value == targetOnMapComp.Coord.Value)
                 {
                     CurrentState = State.Idle;
                     return;
@@ -57,8 +58,12 @@ public class ChaseAi: BaseAi
                 if (Path.Count > 0)
                 {
                     var nextCoord = Path.Dequeue();
-                    var action = new MoveAction(CreatureRef, nextCoord);
-                    actionManager.Perform(action, onFailure:() => CurrentState = State.Idle);
+                    bool res = new BumpAction(GameRef, EntityRef,
+                        (Enums.Direction8)Utils.DirBetweenCoords(entityOnMapComp.Coord.Value, nextCoord)).Perform();
+                    if (!res)
+                    {
+                        CurrentState = State.Idle;
+                    }
                 }
                 break;
         }
@@ -67,9 +72,10 @@ public class ChaseAi: BaseAi
     public void TryChase()
     {
         Path.Clear();
-        var map = OnMap.GetMap(CreatureRef);
-        var targetCoord = OnMap.GetCoord(Target);
-        var path = map.NavigateTo(CreatureRef, targetCoord).ToArray();
+        var entityOnMapComp = EntityRef.GetComp<OnMap>();
+        var targetOnMapComp = Target.GetComp<OnMap>();
+        var map = entityOnMapComp.Map;
+        var path = map.Navigate(entityOnMapComp.Coord.Value, targetOnMapComp.Coord.Value).ToArray();
         if (path.Count() > 2)
         {
             foreach (var wayPoint in path.Skip(1).SkipLast(1))

@@ -2,7 +2,7 @@
 
 public class ObserveAi: BaseAi
 {
-    public DuckObject Target;
+    public Entity Target;
 
     public override void Step(ActionManager actionManager)
     {

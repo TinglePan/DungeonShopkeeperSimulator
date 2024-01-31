@@ -3,17 +3,12 @@ using DSS.Game.DuckTyping;
 
 namespace DSS.Game.Actions;
 
-public class TurnAroundAction: BaseAction
+public class TurnAroundAction: BaseDirectionalAction
 {
-    protected DuckObject EntityRef;
-    public Enums.Direction8 Dir;
-    
-    public TurnAroundAction(DuckObject entity, Enums.Direction8 dir)
+    public TurnAroundAction(Game game, Entity entity, Enums.Direction8 dir): base(game, entity, dir)
     {
-        EntityRef = entity;
-        Dir = dir;
     }
-    protected override bool TryPerform()
+    public override bool TryPerform()
     {
         throw new System.NotImplementedException();
     }
